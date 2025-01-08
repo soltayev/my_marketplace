@@ -4,16 +4,25 @@ package com.adilzhansoltayev.spring.springboot.my_marketplace.controller;
 import com.adilzhansoltayev.spring.springboot.my_marketplace.entity.Good;
 import com.adilzhansoltayev.spring.springboot.my_marketplace.service.GoodService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
-@RestController
-@RequestMapping("/api")
+@Controller
 public class GoodController {
 
     @Autowired
     private GoodService goodService;
+
+    @GetMapping("/")
+    public String goods(@RequestParam(name = "name", required = false) String name, Model model) {
+        model.addAttribute("goods", goodService.findAllByName(name));
+        return "goods";
+    }
 
     @GetMapping("/goods")
     public List<Good> showAllGoods() {
@@ -23,29 +32,32 @@ public class GoodController {
     }
 
     @GetMapping("/goods/{id}")
-    public Good getGood(@PathVariable int id) {
-        Good good = goodService.getGood(id);
-
-        return good;
+    public String goodInfo(@PathVariable int id, Model model) {
+        Good good = goodService.getGoods(id);
+        model.addAttribute("goods", good);
+        model.addAttribute("images", good.getImages());
+        return "goods-info";
     }
 
-    @PostMapping("/goods")
-    public Good addNewGood(@RequestBody Good good){
-        goodService.saveGood(good);
-        return good;
+    @PostMapping("/goods/create")
+    public String addNewGood(@RequestParam("file1") MultipartFile file1, @RequestParam("file2") MultipartFile file2,
+                           @RequestParam("file3") MultipartFile file3, Good good) throws IOException {
+        goodService.saveGood(good, file1, file2, file3);
+        return "redirect:/";
     }
 
     @PutMapping("/goods")
-    public Good updateGood(@RequestBody Good good){
-        goodService.saveGood(good);
-        return good;
+    public String updateGood(@RequestParam("file1") MultipartFile file1, @RequestParam("file2") MultipartFile file2,
+                           @RequestParam("file3") MultipartFile file3, Good good) throws IOException {
+        goodService.saveGood(good, file1, file2, file3);
+        return "redirect:/";
     }
 
-    @DeleteMapping("/goods/{id}")
+    @PostMapping("/goods/delete/{id}")
     public String deleteGood(@PathVariable int id) {
-        Good good = goodService.getGood(id);
+        Good good = goodService.getGoods(id);
         goodService.deleteGood(id);
-        return "Good with id = " + id + " was deleted";
+        return "redirect:/";
     }
 
     @GetMapping("/goods/name/{name}")

@@ -2,11 +2,13 @@ package com.adilzhansoltayev.spring.springboot.my_marketplace.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
 @Entity
-@Table(name = "market_goods")
+@Table(name = "goods")
 public class Good {
 
     @Id
@@ -23,13 +25,30 @@ public class Good {
     @Column(name = "price")
     private int price;
 
-    @Column(name = "info")
+    @Column(name = "info", columnDefinition = "text")
     private String info;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "good")
-    private List<Images> images;
+    @Column(name = "author")
+    private String author;
 
-    private
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "good")
+    private List<Images> images = new ArrayList<>();
+
+//    @Column(name = "previewImageId")
+    private int previewImageId;
+
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    private void init() {
+        createdAt = LocalDateTime.now();
+    }
+
+    public void addImageToProduct(Images image) {
+        image.setGood(this);
+        images.add(image);
+    }
 
     public Good() {
     }
@@ -79,6 +98,38 @@ public class Good {
 
     public void setInfo(String info) {
         this.info = info;
+    }
+
+    public List<Images> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Images> images) {
+        this.images = images;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public int getPreviewImageId() {
+        return previewImageId;
+    }
+
+    public void setPreviewImageId(int previewImageId) {
+        this.previewImageId = previewImageId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
