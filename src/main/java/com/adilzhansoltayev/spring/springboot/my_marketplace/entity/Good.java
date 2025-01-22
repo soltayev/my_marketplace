@@ -21,34 +21,40 @@ public class Good {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "category")
-    private String category;
+    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @Column(name = "price")
-    private int price;
+    private long price;
 
     @Column(name = "info", columnDefinition = "text")
     private String info;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "good")
+    @Column(name = "city")
+    private String city;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "good", orphanRemoval = true)
     private List<Images> images = new ArrayList<>();
 
-//    @Column(name = "previewImageId")
     private int previewImageId;
 
-    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     @JoinColumn
     private User user;
 
     @Column(name = "createdAt")
     private LocalDateTime createdAt;
 
+    @Column(name = "quantity")
+    private Long quantity;
+
     @PrePersist
     private void init() {
         createdAt = LocalDateTime.now();
     }
 
-    public void addImageToProduct(Images image) {
+    public void addImageToGood(Images image) {
         image.setGood(this);
         images.add(image);
     }

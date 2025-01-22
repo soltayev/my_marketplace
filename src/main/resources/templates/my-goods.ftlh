@@ -36,13 +36,11 @@
             </div>
             <div class="form-group">
                 <label for="searchCategory">Категория</label>
-                <select id="searchCategory" required name="category" class="form-control">
+                <select id="searchCategory" required name="categoryId" class="form-control">
                     <option value="">Категория не выбрана</option>
-
-                    <option value="Смартфоны">Смартфоны</option>
-                    <option value="Телевизоры">Телевизоры</option>
-                    <option value="Ноутбуки">Ноутбуки</option>
-
+                    <#list categories as category>
+                        <option value="${category.id}">${category.name}</option>
+                    </#list>
                 </select>
             </div>
             <div class="form-group">

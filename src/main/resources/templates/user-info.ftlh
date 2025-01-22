@@ -1,23 +1,38 @@
-<!DOCTYPE html>
-<html>
-<head>My Marketplace</head>
-<body>
-<h1>My Marketplace</h1>
-<h3>Подробная информация о продавце ${user.name}</h3>
-<b>Номер телефона: </b> ${user.phoneNumber}
-<h4>Товары пользователя ${user.name}</h4>
-<#list goods as good>
-    <div>
-        <p><b>${good.name}</b> ${good.price} тг | <a href="/goods/${good.id}">Подробнее...</a></p>
+<#import "blocks/template.ftlh" as t>
+<@t.template userByPrincipal>
+    <h1 style="text-align: center">Информация о пользователе</h1>
+    <hr>
+    <div style="text-align: center">
+        <img src="/static/images/avatar.png"
+             style="border:2px solid black; border-radius: 20px" height="120">
+        <br>
+        <br>
+        <h2>${user.name}</h2>
+        <br>
+        Номер телефона: <b>${user.phoneNumber}</b>
     </div>
-    <#else>
-    <h3>Товаров нет</h3>
-</#list>
-<#if errorMessage??>
-    <h2 style="color: red">${errorMessage}</h2>
-</#if>
+    <br>
+    <hr>
+    <h1 style="text-align: center">Товары пользователя ${user.name}</h1>
+    <br>
+    <div class="card-columns">
+        <#list goods as good>
+            <a href="/goods/${good.id}" class="good-link">
+                <div class="card text-white bg-dark my-3 good">
 
-<a href="/">Главная</a>
-<a href="/login">Войти</a>
-</body>
-</html>
+                    <img src="/images/${good.previewImageId}"
+                         class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-name">${good.name}</h5>
+                        <p class="card-text">${good.price} тг</p>
+                    </div>
+                    <div class="card-footer">
+                        ${good.user.name}
+                    </div>
+                </div>
+            </a>
+        <#else>
+            <h1 style="text-align: center">Не найдено</h1>
+        </#list>
+    </div>
+</@t.template>

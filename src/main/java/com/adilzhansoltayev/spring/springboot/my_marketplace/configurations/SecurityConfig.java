@@ -1,6 +1,6 @@
 package com.adilzhansoltayev.spring.springboot.my_marketplace.configurations;
 
-import com.adilzhansoltayev.spring.springboot.my_marketplace.service.CustomUserDetailsServiceImpl;
+import com.adilzhansoltayev.spring.springboot.my_marketplace.service.impl.CustomUserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +26,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/goods/**", "/images/**", "/registration", "/user/**", "/admin/**").permitAll()
+                        .requestMatchers("/", "/goods/**", "/images/**", "/registration",
+                                "/user/**", "/admin/**", "/static/**", "/my/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

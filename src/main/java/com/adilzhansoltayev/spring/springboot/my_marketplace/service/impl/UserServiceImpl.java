@@ -1,13 +1,15 @@
-package com.adilzhansoltayev.spring.springboot.my_marketplace.service;
+package com.adilzhansoltayev.spring.springboot.my_marketplace.service.impl;
 
 import com.adilzhansoltayev.spring.springboot.my_marketplace.dao.UserRepository;
 import com.adilzhansoltayev.spring.springboot.my_marketplace.entity.User;
 import com.adilzhansoltayev.spring.springboot.my_marketplace.entity.enums.Role;
+import com.adilzhansoltayev.spring.springboot.my_marketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +47,6 @@ public class UserServiceImpl implements UserService {
             if (user.isActive()) {
                 user.setActive(false);
                 log.info("Забанен пользователь: {}", user.getEmail());
-
             } else {
                 user.setActive(true);
                 log.info("Разблокирован пользователь: {}", user.getEmail());
@@ -67,5 +68,10 @@ public class UserServiceImpl implements UserService {
             }
         }
         userRepository.save(user);
+    }
+
+    public User getUserByPrincipal(Principal principal) {
+        if (principal == null) return new User();
+        return userRepository.findByEmail(principal.getName());
     }
 }
