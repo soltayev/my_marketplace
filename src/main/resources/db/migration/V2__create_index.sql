@@ -1,0 +1,1 @@
+create index idx_goods_name on goods(name);
