@@ -1,37 +1,28 @@
 package com.adilzhansoltayev.spring.springboot.my_marketplace.service;
 
 import com.adilzhansoltayev.spring.springboot.my_marketplace.entity.Good;
-import com.adilzhansoltayev.spring.springboot.my_marketplace.entity.User;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.List;
 
 public interface GoodService {
 
-    public List<Good> getAllGoods();
+    void saveOrUpdateGood(Good good) throws IOException;
 
-    public void saveGood(Principal principal, Good good, MultipartFile file1, MultipartFile file2, MultipartFile file3) throws IOException;
+    void deleteGood(long id);
 
-    public void updateQuantity(int id, long newQuantity);
+    Good getGoodById(long id);
 
-    public Good getGoods(int id);
+    List<Good> getGoodByName(String name);
 
-    public void deleteGood(User user, int id);
+    List<Good> getGoodByCategory(String category);
 
-    public Good getGoodById(int id);
+    List<Good> getGoodByPrice(double priceMin, double priceMax);
 
-    public List<Good> findAllByName(String name);
+    Page<Good> getPageGoods(Pageable pageable);
 
-//    public List<Good> findAllByNameAndCity(String name, String city);
+    void updateQuantity(long id, long quantity);
 
-//    public List<Good> findAllByNameAndCityAndCategory(String name, String city, Long categoryId);
-
-    public List<Good> findAllByNameAndCityAndCategoryAndPriceRange(String name, String city, Long categoryId, Long minPrice, Long maxPrice);
-
-    public List<Good> findAllWithSorting(String name, String city, Long categoryId, Long minPrice, Long maxPrice, String sortField, String sortOrder);
-
-    }
+}

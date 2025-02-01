@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Entity
@@ -16,17 +14,16 @@ public class Good {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private long id;
 
     @Column(name = "name")
     private String name;
 
-    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @Column(name = "category")
+    private String category;
 
     @Column(name = "price")
-    private long price;
+    private double price;
 
     @Column(name = "info", columnDefinition = "text")
     private String info;
@@ -34,29 +31,15 @@ public class Good {
     @Column(name = "city")
     private String city;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "good", orphanRemoval = true)
-    private List<Images> images = new ArrayList<>();
-
-    private int previewImageId;
-
-    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    @JoinColumn
-    private User user;
-
-    @Column(name = "createdAt")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "quantity")
-    private Long quantity;
+    private long quantity;
 
     @PrePersist
     private void init() {
         createdAt = LocalDateTime.now();
-    }
-
-    public void addImageToGood(Images image) {
-        image.setGood(this);
-        images.add(image);
     }
 
 }

@@ -1,128 +1,79 @@
 package com.adilzhansoltayev.spring.springboot.my_marketplace.controller;
 
-import com.adilzhansoltayev.spring.springboot.my_marketplace.entity.Category;
 import com.adilzhansoltayev.spring.springboot.my_marketplace.entity.Good;
-import com.adilzhansoltayev.spring.springboot.my_marketplace.entity.User;
-import com.adilzhansoltayev.spring.springboot.my_marketplace.service.impl.CategoryServiceImpl;
-import com.adilzhansoltayev.spring.springboot.my_marketplace.service.impl.GoodServiceImpl;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
+import com.adilzhansoltayev.spring.springboot.my_marketplace.service.GoodService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.List;
 
-@Slf4j
-@Controller
-@RequiredArgsConstructor
-@Transactional
+@RestController
+@RequestMapping("/api")
 public class GoodController {
-    private final GoodServiceImpl goodService;
-    private final CategoryServiceImpl categoryService;
 
-    @GetMapping("/")
-    public String goods(@RequestParam(name = "searchWord", required = false) String name,
-                        @RequestParam(name = "searchCity", required = false) String city,
-                        @RequestParam(name = "searchCategory", required = false) Long categoryId,
-                        @RequestParam(name = "minPrice", required = false) Long minPrice,
-                        @RequestParam(name = "maxPrice", required = false) Long maxPrice,
-                        @RequestParam(name = "sortField", required = false) String sortField,
-                        @RequestParam(name = "sortOrder", required = false) String sortOrder,
-                        Principal principal, Model model) {
-
-        log.info("Параметры запроса: searchWord={}, searchCity={}, searchCategory={}, minPrice={}, maxPrice={}, sortField={}, sortOrder={}",
-                name, city, categoryId, minPrice, maxPrice, sortField, sortOrder);
-
-        List<Good> goods = goodService.findAllWithSorting(name, city, categoryId, minPrice, maxPrice, sortField, sortOrder);
-        List<Category> categories = categoryService.getAllCategories();
-
-        model.addAttribute("goods", goods);
-        model.addAttribute("categories", categories);
-//        model.addAttribute("goods", goodService.findAllByName(name));
-        model.addAttribute("user", goodService.getUserByPrincipal(principal));
-        model.addAttribute("searchWord", name);
-        model.addAttribute("searchCity", city);
-        model.addAttribute("searchCategory", categoryId);
-        model.addAttribute("minPrice", minPrice);
-        model.addAttribute("maxPrice", maxPrice);
-        model.addAttribute("sortField", sortField);
-        model.addAttribute("sortOrder", sortOrder);
-
-        log.info("Найдено товаров: {}", goods.size());
-
-        return "goods";
-    }
+    @Autowired
+    private GoodService goodService;
 
     @GetMapping("/goods")
-    public List<Good> showAllGoods() {
-        return goodService.getAllGoods();
+    public Page<Good> getAllGoods(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "5") int size,
+                                  @RequestParam(defaultValue = "id") String sortBy,
+                                  @RequestParam(defaultValue = "true") boolean ascending) {
+        Sort sort = ascending ? Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return goodService.getPageGoods(pageable);
     }
 
     @GetMapping("/goods/{id}")
-
-    public String goodInfo(@PathVariable int id, Model model, Principal principal) {
-        Good good = goodService.getGoods(id);
-        model.addAttribute("user", goodService.getUserByPrincipal(principal));
-        model.addAttribute("goods", good);
-        model.addAttribute("images", good.getImages());
-        model.addAttribute("authorGood", good.getUser());
-        return "goods-info";
-    }
-
-    @PostMapping("/goods/create")
-    public String addNewGood(@RequestParam("file1") MultipartFile file1, @RequestParam("file2") MultipartFile file2,
-                             @RequestParam("file3") MultipartFile file3,
-                             @RequestParam("categoryId") Long categoryId,
-                             Good good, Principal principal) throws IOException {
-        Category category = categoryService.getCategoryById(categoryId);
-        good.setCategory(category);
-
-        goodService.saveGood(principal, good, file1, file2, file3);
-        log.info("Добавление товара: {}", good);
-        log.info("Пользователь: {}", goodService.getUserByPrincipal(principal));
-        return "redirect:/my/goods";
-    }
-
-    @PostMapping("/goods/update/{id}")
-    public String updateGoodQuantity(@PathVariable int id,
-                                     @RequestParam(required = false) long quantity, RedirectAttributes redirectAttributes) {
-        goodService.updateQuantity(id, quantity);
-        return "redirect:/warehouse";
-    }
-
-    @PostMapping("/goods/delete/{id}")
-    public String deleteGood(@PathVariable int id, Principal principal) {
-        goodService.deleteGood(goodService.getUserByPrincipal(principal), id);
-        return "redirect:/my/goods";
-    }
-
-    @GetMapping("/my/goods")
-    public String userGoods(Principal principal, Model model) {
-        User user = goodService.getUserByPrincipal(principal);
-        List<Category> categories = categoryService.getAllCategories();
-        model.addAttribute("user", user);
-        model.addAttribute("goods", user.getGoods());
-        model.addAttribute("categories", categories);
-        return "my-goods";
+    public Good goodInfo(@PathVariable long id) {
+        return goodService.getGoodById(id);
     }
 
     @GetMapping("/goods/name/{name}")
-    public List<Good> showAllGoodsByName(@PathVariable String name) {
-        List<Good> goods = goodService.findAllByName(name);
-        return goods;
+    public List<Good> getGoodByName(@PathVariable("name") String name) {
+        return goodService.getGoodByName(name);
     }
 
-    @GetMapping("/warehouse")
-    public String warehouse(Model model, Principal principal) {
-        model.addAttribute("user", goodService.getUserByPrincipal(principal));
-        model.addAttribute("goods", goodService.getAllGoods());
-        return "warehouse";
+    @GetMapping("/goods/category/{category}")
+    public List<Good> getGoodByCategory(@PathVariable("category") String category) {
+        return goodService.getGoodByCategory(category);
     }
 
+    @GetMapping("/goods/price/{priceMin}/{priceMax}")
+    public List<Good> getGoodByPriceRange(@PathVariable("priceMin") Long priceMin,
+                                          @PathVariable("priceMax") Long priceMax) {
+        return goodService.getGoodByPrice(priceMin, priceMax);
+    }
+
+    @PostMapping("/goods/create")
+    public Good addNewGood(@RequestBody Good good) throws IOException {
+
+        goodService.saveOrUpdateGood(good);
+        return good;
+    }
+
+    @PostMapping("/goods/update")
+    public Good updateGood(@RequestBody Good good) throws IOException {
+        goodService.saveOrUpdateGood(good);
+        return goodService.getGoodById(good.getId());
+    }
+
+    @PostMapping("/goods/update_quantity/{id}")
+    public Good updateQuantity(@PathVariable long id,
+                               @RequestParam(value = "quantity") long quantity){
+        goodService.updateQuantity(id, quantity);
+        return goodService.getGoodById(id);
+    }
+
+    @DeleteMapping("/goods/delete/{id}")
+    public String deleteGood(@PathVariable long id) {
+        goodService.deleteGood(id);
+        return "good with id " + id + " deleted";
+    }
 }

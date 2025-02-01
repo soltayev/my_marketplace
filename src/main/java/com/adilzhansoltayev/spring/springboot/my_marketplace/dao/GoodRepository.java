@@ -2,36 +2,19 @@ package com.adilzhansoltayev.spring.springboot.my_marketplace.dao;
 
 import com.adilzhansoltayev.spring.springboot.my_marketplace.entity.Good;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface GoodRepository extends JpaRepository<Good, Integer>{
-    public List<Good> findAllByName(String name);
+@Repository
+public interface GoodRepository extends JpaRepository<Good, Long>{
+    Good findById(long id);
 
-    public List<Good> findByNameContainingIgnoreCase(String name);
+    @Query("select g from Good g where lower(g.name) like lower(concat('%', :name, '%'))")
+    List<Good> findByNameContaining(String name);
 
-    public List<Good> findByNameAndCityContainingIgnoreCaseAndCategoryId(String name, String city, Long categoryId);
+    List<Good> findByCategory(String category);
 
-    public List<Good> findByNameAndCityContainingIgnoreCase(String name, String city);
-
-    public List<Good> findByCityContainingIgnoreCase(String city);
-
-    public List<Good> findByCategoryId(Long categoryId);
-
-    public List<Good> findByCityAndCategoryId(String city, Long categoryId);
-
-    public List<Good> findByPriceBetweenAndNameContainingIgnoreCaseAndCityContainingIgnoreCaseAndCategoryId(
-            long minPrice, long maxPrice, String name, String city, Long categoryId);
-
-    public List<Good> findByPriceBetweenAndCityContainingIgnoreCaseAndCategoryId(
-            long minPrice, long maxPrice, String city, Long categoryId);
-
-    public List<Good> findByPriceBetweenAndNameContainingIgnoreCase(
-            long minPrice, long maxPrice, String name);
-
-    public List<Good> findByPriceBetween(Long minPrice, Long maxPrice);
-
-    public List<Good> findByPriceGreaterThanEqual(Long minPrice);
-
-    public List<Good> findByPriceLessThanEqual(Long maxPrice);
+    List<Good> findByPriceBetween(double priceMin, double priceMax);
 }
